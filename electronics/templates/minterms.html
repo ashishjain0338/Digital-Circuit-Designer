@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+<!--        <link type="text/css" rel="stylesheet" href="indexstyle.css">-->
+        <link type="text/css" rel="stylesheet" href="{% static  'css/indexstyle.css' %}">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    </head>
+    <body>
+        <div>
+          <h1>Digital Circuit Designer</h1>
+        </div>
+        <div class="login-page">
+            <form action="" class="form" method="post">
+                {% csrf_token %}
+              <div class="var">
+                <h3>Enter variable names</h3>
+                <input type="text" id="var" name="varlist">
+              </div>
+              <div class="minTerm">
+                <h3>Enter min terms</h3>
+                <input type="text" id="min" name="minterms">
+              </div>
+              <div class="dnt-care">
+                <h3>Enter dont care positions</h3>
+                <input type="text" id="dcare" name="dont-care">
+              </div>
+              <button class="sub-btn" onclick="clickHandler()">Submit</button>
+            </form>
+          </div>
+        <h1>Minimised Expression --> {{exp}}</h1>
+          <script>
+            function clickHandler(){
+              var variable = document.getElementById("var");
+              var minterms = document.getElementById("min");
+              var dontcare = document.getElementById("dcare");
+              var varArr = variable.value.split(' ').map(String)
+              var minArr = toArray(minterms);
+              var dcareArr = toArray(dontcare);
+              //json formatting
+              var obj = {
+                "variables":varArr,
+                "minterms":minArr,
+                "dontcares":dcareArr,
+
+              };
+              document.getElementById("var").value = varArr;
+              document.getElementById("min").value = minArr;
+              document.getElementById("dcare").value = dcareArr;
+              console.log(obj);
+<!--               $.post("",-->
+<!--                  {"data" : JSON.stringify(obj),-->
+<!--                   "csrfmiddlewaretoken": '{{ csrf_token }}',-->
+<!--                   },-->
+<!--                  );-->
+            }
+
+            function toArray(element){
+              var data = element.value;
+              if(data == "")
+                {
+                console.log('Empty literal');
+                return ['X'];
+                }
+              var arr = data.split(' ').map(Number);
+              console.log(arr);
+              return arr
+            }
+          </script>
+    </body>
+</html>
