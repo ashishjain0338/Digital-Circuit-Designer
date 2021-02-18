@@ -35,8 +35,8 @@ def ImplementBooleanFn(variables,Ones,dont_care ):
     return [LogicalExpression, GateForm]
 
 def CleanExp(exp):
-    exp = re.sub(r"AND", " ", exp)
+    exp = re.sub(r"AND", "*", exp)
     exp = re.sub(r"OR", "+ ", exp)
-    exp = re.sub(r"NOT", "~", exp)
+    exp = re.sub(r"NOT", "!", exp)
     # exp = re.sub(r"\(", "", exp)
     return exp
