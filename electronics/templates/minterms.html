@@ -1,43 +1,31 @@
-<!DOCTYPE html>
-{% load static %}
-<html>
-    <head>
-<!--        <link type="text/css" rel="stylesheet" href="indexstyle.css">-->
-        <link type="text/css" rel="stylesheet" href="{% static  'css/indexstyle.css' %}">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    </head>
-    <body style="background-color: rgb(252, 252, 252);"> 
-       <!--navbar-->
-      <div class="topnav">
-        <div class="logo">Digital Circuit Designer</div>
-        <a class="active" href="#home">Expression</a>
-        <a href="#news">Flip-Flops</a>
-        <a href="#contact">Counter</a>
-        <a href="#about">About</a>
-      </div>      
+{% extends 'base.html' %}
+{% block content %}
+       <h1 id="demo" ></h1>
       <div class="main">   <!--form-->
         <div class="login-page">
             <form action="" class="form" method="post">
                 {% csrf_token %}
               <div class="var">
                 <h3>Enter variable names</h3>
-                <input type="text" id="var" name="varlist" value="{% for x in var %}{{x}} {% endfor %}">
+                <input type="text" id="var" name="varlist" pattern="^([0-9a-zA-Z, ]+)$" value="{% for x in var %}{{x}} {% endfor %}"
+                       oninvalid="this.setCustomValidity('Please Enter either space or comma separated Variables')" required>
               </div>
               <div class="minTerm">
                 <h3>Enter min terms</h3>
-                <input type="text" id="min" name="minterms" value="{% for x in min %}{{x}} {% endfor %}">
+                <input type="text" id="min" name="minterms" pattern="^([0-9, ]+)$" value="{% for x in min %}{{x}} {% endfor %}"
+                       placeholder="Enter either space or comma separated minterms" required>
               </div>
               <div class="dnt-care">
                 <h3>Enter dont care positions</h3>
                 <input type="text" id="dcare" name="dont-care" value="{% for x in dont %}{{x}} {% endfor %}">
               </div>
-              <button class="sub-btn" onclick="clickHandler()">Submit</button>
+              <button id="myBtn" class="sub-btn" >Submit</button>
             </form>
         </div>
         <div class="left">
              <!--result page-->
            <div class="result">
-             <h1 id="exp-title">Boolean expression</h1>
+             <h1 id="exp-title">Boolean Expression</h1>
              <div id="bool-exp">{{exp}}</div>
            </div>
          <!--truth table-->
@@ -115,38 +103,72 @@
 
           tdiv.append(tbl)
         </script>
+       <script>
+            document.getElementById("minterms").className += "active";
+        </script>
         <script>
-            function clickHandler(){
-              var variable = document.getElementById("var");
-              var minterms = document.getElementById("min");
-              var dontcare = document.getElementById("dcare");
-              var varArr = variable.value.split(' ').map(String)
-              var minArr = toArray(minterms);
-              var dcareArr = toArray(dontcare);
-              //json formatting
-              var obj = {
-                "variables":varArr,
-                "minterms":minArr,
-                "dontcares":dcareArr,
+            document.getElementById("myBtn").addEventListener("click", function(e) {
 
-              };
-              document.getElementById("var").value = varArr;
-              document.getElementById("min").value = minArr;
-              document.getElementById("dcare").value = dcareArr;
-              console.log(obj);
-            }
+            var clean_variable = stringsplit(document.getElementById("var").value);
 
-            function toArray(element){
-              var data = element.value;
-              if(data == "")
-                {
-                console.log('Empty literal');
-                return ['X'];
+            var minvar = document.getElementById("min");
+            var clean_min = intstringsplit(minvar.value);
+            for(var i = 0; i < clean_min.length;i++){
+                if(clean_min[i] > Math.pow(2, clean_variable.length) - 1){
+                    minvar.setCustomValidity("Minterms are out of bound of " + clean_min.length + " variables");
+                    console.log(minvar.reportValidity());
+                     e.preventDefault();
+                     return;
+                     break;
                 }
-              var arr = data.split(' ').map(Number);
-              console.log(arr);
-              return arr
             }
+
+            var dontvar = document.getElementById("dcare");
+            var clean_dont = intstringsplit(dontvar.value);
+            dontvar.setCustomValidity("");
+             dontvar.reportValidity();
+            for(var i = 0; i < clean_min.length;i++){
+                if(clean_dont[i] > Math.pow(2, clean_variable.length) - 1){
+                    dontvar.setCustomValidity("DontCare are out of bound of " + clean_min.length + " variables");
+                    dontvar.reportValidity();
+                     e.preventDefault();
+                     break;
+                }
+            }
+            dontvar.value = clean_dont;
+            minvar.value = clean_min;
+            document.getElementById("var").value = clean_variable;
+});
+function stringsplit(data){
+    var outlist = [];
+    var word = "";
+    for( i = 0;i < data.length;i++){
+        if(data[i] == " " || data[i] == ","){
+            if(word.length != 0){
+            outlist.push(word);
+            word = "";
+            }
+        }else{
+        word+=data[i];
+        }
+    }
+    if(word.length != 0){
+    outlist.push(word);
+    word = "";
+    }
+    console.log(outlist);
+    return outlist;
+};
+function intstringsplit(data){
+    var s = stringsplit(data);
+    var out = [];
+    var i;
+    for(i = 0;i < s.length; i++)
+    {
+        out.push(parseInt(s[i]));
+    }
+    console.log(out);
+    return out;
+}
           </script>
-    </body>
-</html>
+{% endblock %}

@@ -18,5 +18,7 @@ from django.urls import path
 from electronics import views
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',views.minterms, name = "minterms")
+    path('minterms/',views.minterms, name = "minterms"),
+    path('counter/', views.counter, name = "counter"),
+    path('', views.home, name = "home")
 ]
