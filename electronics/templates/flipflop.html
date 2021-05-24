@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% block bootstrap %}
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+{% endblock %}
+
+{% block content %}
+<style>
+table {
+  background-color: white;
+  border-spacing: 7px;
+  border-spacing: 0.5rem;
+  box-shadow: -2px 2px 5px 1px rgba(143, 143, 143, 0.199);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.input-counter{
+padding:20px;
+margin: 10 20 20 20;
+border:2px;
+border-style: groove;
+}
+table th {
+  position: relative;
+}
+
+table th input {
+  position: absolute;
+  display: block;
+  top:0;
+  left:0;
+  margin: 0;
+  height: 100%;
+  width: 90%;
+  border: 2px solid #a9a9a9;
+  border-radius: 5px;
+  padding: 10px;
+  box-sizing: border-box;
+  margin: 2px;
+}
+
+table th input:hover{
+border: 3px solid;
+border-color : #81d4fa;
+border-radius: 5px;
+}
+
+table td {
+  position: relative;
+}
+
+table td input {
+  position: absolute;
+  display: block;
+  top:0;
+  left:0;
+  margin: 0;
+  height: 90%;
+  width: 75%;
+  border: 2px solid #a9a9a9;
+  border-radius: 5px;
+  padding: 10px;
+  box-sizing: border-box;
+  margin: 2px;
+}
+
+table td input:hover{
+border: 3px solid;
+border-color : #81d4fa;
+border-radius: 5px;
+}
+</style>
+
+
+<div class="row">
+<div class="col-lg-5 col-sm-12">
+    <div  class="input-counter">
+        <form class="form-inline custom_form" action="" method="post">
+          {% csrf_token %}
+
+        <h5 style="display:block">Enter Number of Inputs to Flip-Flop</h5>
+            <br/>
+        <div class="input-group mb-3">
+            <input  type="number" name="num"  class="form-control" placeholder="Enter Number of Inputs to Flip-Flop" id="num" />
+            <div class="input-group-append">
+                <button  class=" btn-info" type="button" onclick="create_table()">Proceed</button>
+            </div>
+        </div>
+
+        <table id="truth" class="table table-hover">
+            <thead><tr></tr></thead>
+            <tbody></tbody>
+        </table>
+            <select class="form-control" name="fftype" id="ff-select">
+              <option value="-1">Type of Flip-Flop</option>
+               <option  value = "JK" >J-K Flip Flop</option>
+                <option  value = "T" >T Flip Flop</option>
+                <option  value = "D">D Flip Flop</option>
+             </select>
+          <br/>
+        <button class="btn-info my-2 my-sm-0" type="submit">Search</button>
+      </form>
+
+    </div>
+      <br/>
+
+</div>
+
+<div class="input-counter col-sm-12 col-lg-5" style="display:none" id="output">
+    <div class="input-counter">
+
+        <h5>Solved Equations</h5>
+        <ol class="list-group">
+            {% for eq in solution %}
+            <li class="list-group-item"><h6>{{ eq }}</h6></li>
+            {% endfor %}
+        </ol>
+    </div>
+    <br/>
+    <h5>Truth Table</h5>
+    <div id="truth-table">
+    </div>
+</div>
+</div>
+
+
+<script>
+
+
+    function create_input_table(num){
+    var tab = document.getElementById("truth");
+    var header = tab.children[0].children[0];
+    var body = tab.children[1];
+    while (header.firstChild) {
+            header.removeChild(header.firstChild);
+        }
+    while (body.firstChild) {
+            body.removeChild(body.firstChild);
+        }
+    // This Following loop add headers to table
+    for(var i = 0;i < num + 2; i++)
+    {
+        var text = "";
+        if(i == num)
+        {
+            text = "Q";
+        }else if(i == num + 1)
+        {
+            text = "Q+";
+        }else
+        {
+            var name = 'var' + i
+            text = '<input  id="' + name + '"  name="' + name + '"  required/>'
+        }
+        var node = document.createElement("th");
+        node.innerHTML = text;
+        header.appendChild(node);
+    }
+    console.log(body);
+    // The following code adds body to table row by row
+    var powerlist = [], bin = [];
+    for(var i = 0; i < num + 1;i++){
+    powerlist.push(Math.pow(2, num - i));
+    bin.push(0);
+    }
+    console.log(powerlist);
+    for(var i = 0;i < Math.pow(2, num + 1); i++){
+        var row = document.createElement("tr");
+        for(var j = 0;j < num + 2;j++)
+        {
+            var text = "";
+            if(j == num + 1)
+            {
+            var name = 'dat' + i
+            text = '<input  id="' + name + '"  name="' + name + '" pattern="[0-1X]{1}"  required />'
+        }
+            else text = - bin[j];
+             var node = document.createElement("td");
+            node.innerHTML = text;
+            row.appendChild(node);
+        }
+        body.appendChild(row);
+<!--        console.log("row ", i , bin);-->
+        for(var j = 0;j < num + 1; j++)
+        {
+            if((i + 1)%powerlist[j] == 0){
+                bin[j] = ~bin[j]
+            }
+        }
+    }
+    };
+</script>
+<script>
+    document.getElementById("flip-flop").className += "active";
+    document.getElementById("truth-table").innerHTML = {{ truthtable|safe }}
+    var response = {{response|safe}}
+    if(response == 'post'){
+    document.getElementById("output").style.display = "block";
+    }
+    var inputlist = {{ inputlist|safe }};
+    console.log(inputlist);
+    var num = inputlist[0], index = 1;
+
+    function selectoption(type){
+    var ff = document.getElementById("ff-select");
+    for(var i = 0;i < ff.length; i++)
+    {
+        console.log(ff[i].value);
+        if(ff[i].value == type)
+            ff[i].setAttribute('selected', true);
+        else
+            ff[i].removeAttribute('selected');
+    }
+    }
+
+
+    if(num != 0){
+    document.getElementById('num').value = num;
+    create_input_table(num);
+    for(var i = 0;i < num; i++){
+    var id = "var" + i;
+    document.getElementById(id).value = inputlist[index];
+    index++;
+    }
+
+    for(var i = 0;i < Math.pow(2,num + 1); i++){
+    var id = "dat" + i;
+    document.getElementById(id).value = inputlist[index];
+    index++;
+    }
+
+    selectoption(inputlist[index]);
+    }
+
+
+    function create_table(){
+    var num = parseInt(document.getElementById("num").value);
+    console.log(num);
+    create_input_table(num);
+    }
+<!--    create_input_table(3);-->
+</script>
+
+
+
+{% endblock %}

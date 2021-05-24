@@ -1,6 +1,20 @@
 {% extends 'base.html' %}
+{% block bootstrap %}
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+{% endblock %}
+
 {% block content %}
 <style>
+table {
+  background-color: white;
+  border-spacing: 7px;
+  border-spacing: 0.5rem;
+  box-shadow: -2px 2px 5px 1px rgba(143, 143, 143, 0.199);
+  border-radius: 10px;
+  padding: 10px;
+}
+
 .btn-group button {
   background-color: #04AA6D; /* Green background */
   border: 1px solid green; /* Green border */
@@ -9,6 +23,7 @@
   cursor: pointer; /* Pointer/hand icon */
   float: left; /* Float the buttons side by side */
   margin : 5 5 5 10;
+
 }
 
 /* Clear floats (clearfix hack) */
@@ -21,64 +36,126 @@
 .btn-group button:not(:last-child) {
   border-right: none; /* Prevent double borders */
 }
+.btn-group .arrow:hover{
+  background-color: inherit;
+}
 
 /* Add a background color on hover */
 .btn-group button:hover {
   background-color: #3e8e41;
 }
+
+.btn-group{
+flex-wrap: wrap;
+  display: flex;
+  margin: 5;
+}
+.controls button{
+margin: 0 15 15 0;
+}
+.input-counter{
+padding:20px;
+margin: 10 20 20 20;
+border:2px;
+border-style: groove;
+}
+
+.btn-group .arrow{
+background-color: inherit;
+  color: black; /* White text */
+  padding: 1px; /* Some padding */
+  float: left; /* Float the buttons side by side */
+  margin : 0;
+    border: 0px solid green;
+    cursor: inherit;
+    font-size: 2rem;
+}
 </style>
 <!--style="background-color:#555555"-->
-<h1> Counter Here</h1>
-<div class="col-lg-4" style="padding:1px 2px 1px 5px;margin: 10">
-    <div style="display:inline">
-        <h5 style="display:inline">Input Sequence</h5>
-        <div id="btn-controls" style="display:none;float:right" align="right">
-        <button  class=" btn-info" onclick="clearall()">Clear All</button>
-        <button  class=" btn-info" onclick="clearlast()">Clear Previous</button>
-    </div>
+<!--<h1> Counter Here</h1>-->
+<div class="row">
+<div class="col-lg-5 col-sm-12">
+    <div  class="input-counter">
+        <div style="display:inline">
+            <h5 style="display:inline">Input Sequence</h5>
+            <div id="btn-controls" class="controls" style="display:none;float:right" align="right">
+            <button  class=" btn-info" onclick="clearall()">Clear All</button>
+            <button  class=" btn-info" onclick="clearlast()">Clear Previous</button>
+            </div>
+        </div>
         <br/>
-        <div class="btn-group" id="btn-show">
+        <div class="btn-group" id="btn-show" style="width:100%">
+            </div>
+        <br/>
+        <div class="input-group mb-3">
+            <input  type="text" name="next-state"  class="form-control" placeholder="Enter Next State" id="next" />
+            <div class="input-group-append">
+                <button  class=" btn-info" onclick="addstate()">Add Next State</button>
+            </div>
         </div>
-    </div>
+      <form class="form-inline custom_form" action="" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="seq" id="seq"/>
+            <select class="form-control" name="fftype" id="ff-select">
+              <option value="-1">Type of Flip-Flop</option>
+               <option  value = "JK" >J-K Flip Flop</option>
+                <option  value = "T" >T Flip Flop</option>
+                <option  value = "D">D Flip Flop</option>
+             </select>
+          <br/>
+        <button class="btn-info my-2 my-sm-0" type="submit">Search</button>
+      </form>
 
-    <div class="input-group mb-3">
-        <input  type="text" name="next-state"  class="form-control" placeholder="Enter Next State" id="next" />
-        <div class="input-group-append">
-            <button  class=" btn-info" onclick="addstate()">Add Next State</button>
-        </div>
     </div>
-  <form class="form-inline custom_form" action="" method="post">
-      {% csrf_token %}
-      <input type="hidden" name="seq" id="seq"/>
-        <select class="form-control" name="fftype">
-          <option value="-1">Type of Flip-Flop</option>
-           <option  value = "JK" >J-K Flip Flop</option>
-            <option  value = "T" >T Flip Flop</option>
-            <option  value = "D">D Flip Flop</option>
-         </select>
       <br/>
-    <button class="btn-info my-2 my-sm-0" type="submit">Search</button>
-  </form>
+    <div class="input-counter" id="output-equations"  style="display:none">
+
+        <h5>Solved Equations</h5>
+        <ol class="list-group">
+            {% for eq in solution %}
+            <li class="list-group-item"><h6>{{ eq }}</h6></li>
+            {% endfor %}
+        </ol>
+    </div>
 </div>
 
+<div class="input-counter col-sm-12 col-lg-6" id="output-truthtable" style="display:none">
+    <h5>Truth Table</h5>
+    <div id="truth-table">
+    </div>
+</div>
+</div>
 <script>
+    //Highlighting Counter on Nav Bar
     document.getElementById("counter").className += "active";
+    // Adding Truth Table
+    document.getElementById("truth-table").innerHTML = {{ truthtable|safe }}
 
-
-    var closebtns = document.getElementsByClassName("close");
-    var i;
-
-    for (i = 0; i < closebtns.length; i++) {
-      closebtns[i].addEventListener("click", function() {
-        this.parentElement.style.display = 'none';
-      });
+    var response = {{response|safe}}
+    if(response == 'post'){
+    document.getElementById("output-truthtable").style.display = "block";
+    document.getElementById("output-equations").style.display = "block";
     }
-</script>
-<script>
+
     var seq = {{ prev|safe }};
     var typ = {{ fftype|safe }};
     console.log(typ);
-    updatebutton(seq)
+    updatebutton(seq);
+    selectoption(typ);
+    // Function to update Counter Type
+    function selectoption(type){
+    var ff = document.getElementById("ff-select");
+    for(var i = 0;i < ff.length; i++)
+    {
+        console.log(ff[i].value);
+        if(ff[i].value == type)
+            ff[i].setAttribute('selected', true);
+        else
+            ff[i].removeAttribute('selected');
+    }
+    }
+
+    // Function to update list of sequence
     function updatebutton(seq){
         var node= document.getElementById("btn-show");
         while (node.firstChild) {
@@ -90,11 +167,16 @@
         {
             console.log(seq[i]);
             var button = document.createElement("button");
+            var arrow = document.createElement("button");
             button.innerHTML = seq[i];
-
+            arrow.innerHTML = '→';
+            arrow.className = "arrow";
             // 2. Append somewhere
             var area = document.getElementById("btn-show");
+            if(i != 0)
+                area.appendChild(arrow);
             area.appendChild(button);
+
 
         }
 
@@ -105,12 +187,12 @@
         }
         document.getElementById('seq').value = seq
     }
-    function addstate(){
 
+    // Function to input elements in sequence
+    function addstate(){
     var input = document.getElementById('next');
     console.log('Button is working\n' + input.value);
     seq.push(parseInt(input.value));
-    console.log(seq);
     updatebutton(seq);
     }
 

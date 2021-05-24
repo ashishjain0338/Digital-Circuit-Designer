@@ -20,5 +20,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('minterms/',views.minterms, name = "minterms"),
     path('counter/', views.counter, name = "counter"),
+path('flipflop/', views.flip_flop, name = "flip-flop"),
     path('', views.home, name = "home")
 ]

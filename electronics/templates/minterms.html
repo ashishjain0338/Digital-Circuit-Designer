@@ -6,17 +6,17 @@
             <form action="" class="form" method="post">
                 {% csrf_token %}
               <div class="var">
-                <h3>Enter variable names</h3>
+                <h3>Enter Variable Names</h3>
                 <input type="text" id="var" name="varlist" pattern="^([0-9a-zA-Z, ]+)$" value="{% for x in var %}{{x}} {% endfor %}"
                        oninvalid="this.setCustomValidity('Please Enter either space or comma separated Variables')" required>
               </div>
               <div class="minTerm">
-                <h3>Enter min terms</h3>
+                <h3>Enter Min Terms</h3>
                 <input type="text" id="min" name="minterms" pattern="^([0-9, ]+)$" value="{% for x in min %}{{x}} {% endfor %}"
-                       placeholder="Enter either space or comma separated minterms" required>
+                       placeholder="" required>
               </div>
               <div class="dnt-care">
-                <h3>Enter dont care positions</h3>
+                <h3>Enter Don't Care Positions</h3>
                 <input type="text" id="dcare" name="dont-care" value="{% for x in dont %}{{x}} {% endfor %}">
               </div>
               <button id="myBtn" class="sub-btn" >Submit</button>

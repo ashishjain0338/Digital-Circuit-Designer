@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block bootstrap %}
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+{% endblock %}
+
+{% block content %}
+<style>
+table {
+  background-color: white;
+  border-spacing: 7px;
+  border-spacing: 0.5rem;
+  box-shadow: -2px 2px 5px 1px rgba(143, 143, 143, 0.199);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.input-counter{
+padding:20px;
+margin: 10 20 20 20;
+border:2px;
+border-style: groove;
+}
+table th {
+  position: relative;
+}
+
+table th input {
+  position: absolute;
+  display: block;
+  top:0;
+  left:0;
+  margin: 0;
+  height: 100%;
+  width: 75%;
+  border: 2px solid #a9a9a9;
+  border-radius: 5px;
+  padding: 10px;
+  box-sizing: border-box;
+  margin: 2px;
+}
+
+table th input:hover{
+border: 3px solid;
+border-color : #81d4fa;
+border-radius: 5px;
+}
+
+table td {
+  position: relative;
+}
+
+table td input {
+  position: absolute;
+  display: block;
+  top:0;
+  left:0;
+  margin: 0;
+  height: 90%;
+  width: 50%;
+  border: 2px solid #a9a9a9;
+  border-radius: 5px;
+  padding: 10px;
+  box-sizing: border-box;
+  margin: 2px;
+}
+
+table td input:hover{
+border: 3px solid;
+border-color : #81d4fa;
+border-radius: 5px;
+}
+</style>
+
+
+<div class="row">
+<div class="col-lg-5 col-sm-12">
+    <div  class="input-counter">
+<!--        <table id="truth" class="table table-hover">-->
+<!--            <thead><tr></tr></thead>-->
+<!--        </table>-->
+    <table class="table table-hover">
+        <thead>
+          <tr>
+            <th><input  id="var1"  /></th>
+            <th><input  id="var2"  /></th>
+            <th>Q</th>
+            <th>Q+</th>
+          </tr>
+        </thead>
+    <tbody>
+          <tr>
+            <td>0</td>
+            <td>0</td>
+            <td>1</td>
+              <td><input  id="t1"  /></td>
+          </tr>
+    </tbody>
+    </table>
+      <form class="form-inline custom_form" action="" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="seq" id="seq"/>
+            <select class="form-control" name="fftype" id="ff-select">
+              <option value="-1">Type of Flip-Flop</option>
+               <option  value = "JK" >J-K Flip Flop</option>
+                <option  value = "T" >T Flip Flop</option>
+                <option  value = "D">D Flip Flop</option>
+             </select>
+          <br/>
+        <button class="btn-info my-2 my-sm-0" type="submit">Search</button>
+      </form>
+
+    </div>
+      <br/>
+    <div class="input-counter">
+
+        <h5>Solved Equations</h5>
+        <ol class="list-group">
+            {% for eq in solution %}
+            <li class="list-group-item"><h6>{{ eq }}</h6></li>
+            {% endfor %}
+        </ol>
+    </div>
+</div>
+
+<div class="input-counter" class="col-sm-12 col-lg-6" >
+    <h5>Truth Table</h5>
+    <div id="truth-table">
+    </div>
+</div>
+</div>
+
+
+
+<script>
+    document.getElementById("flip-flop").className += "active";
+</script>
+
+
+{% endblock %}
